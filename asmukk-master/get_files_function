@@ -1,0 +1,31 @@
+int main(void)
+{
+    FILE *archivo_original = fopen(argv, "r"); // Modo lectura
+    char bufer_original[LONGITUD_MAXIMA_CADENA];         // Aquí vamos a ir almacenando cada línea
+    
+    FILE *archivo_ocr = fopen(argv2, "r"); // Modo lectura
+    char bufer_ocr[LONGITUD_MAXIMA_CADENA];         // Aquí vamos a ir almacenando cada línea
+    
+    
+    //sacar el numero de lineas de ambos archivos
+    
+    //un if para validar que tengan la misma cantidad de lineas
+    while (fgets(bufer_original, LONGITUD_MAXIMA_CADENA, archivo))
+    {
+        // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
+        strtok(bufer, "\n");
+        // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
+        printf("La línea es: '%s'\n", bufer);
+        
+        
+    }
+    //sino mando un error
+    
+    
+    return 0;
+}
+
+
+
+
+///Ese valor del optarg
