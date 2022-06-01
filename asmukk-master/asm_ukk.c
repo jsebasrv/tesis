@@ -46,6 +46,8 @@ int default_score(wchar_t x, wchar_t y) {
 
 //int default_gap(wchar_t x) { return 2; }
 
+
+
 void debug_print_W3(int *W, int m_r, int w_len, wchar_t *a, wchar_t *b) {
   int r, w, n_c, c;
 

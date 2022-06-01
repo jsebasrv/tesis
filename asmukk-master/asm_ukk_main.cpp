@@ -19,6 +19,7 @@ void show_help(void) {
   printf("  [-T threshold]        Set threshold score.  Report -1 if threshold is exceeded\n");
   printf("  [-S]                  Do not print aligned sequence\n");
   printf("  [-h]                  Help (this screen)\n");
+  printf("  [-f]                  insert files\n");
 }
 
 int read_string(FILE *fp, std::string &s) {
@@ -31,6 +32,10 @@ int read_string(FILE *fp, std::string &s) {
   if ((ch==EOF) && (errno!=0)) { return -1; }
 
   return s.length();
+}
+
+void recive_files(){
+  printf("hello world\n");
 }
 
 int main(int argc, char **argv) {
@@ -50,7 +55,7 @@ int main(int argc, char **argv) {
 
   FILE *ifp = stdin;
 
-  while ((ch=getopt(argc, argv, "m:g:hSi:T:"))!=-1) switch(ch) {
+  while ((ch=getopt(argc, argv, "m:g:hSi:T:f"))!=-1) switch(ch) {
     case 'm':
       mismatch_cost = atoi(optarg);
       break;
@@ -70,7 +75,7 @@ int main(int argc, char **argv) {
       print_align_sequence=0;
       break;
     case 'f':
-      printf("Estamos aqui");
+      recive_files();
       break;
     case 'h':
     default:
