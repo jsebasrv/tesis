@@ -49,9 +49,11 @@ Lea una fila de cada archivo de entrada y envíe el par de cadenas a la función
 
 2 - Habilitar el programa para trabajar con codificación UTF-8.
 
-En lugar de usar el tipo char, usar wchar_t. Realizar todas las transformaciones necesarias a lo largo de los códigos para cambiar a las funciones que trabajan con caracteres wide. Se adjunta un código básico del uso de las librerías <locale.h> y <wchar.h> como ejemplo para iniciar.
+En lugar de usar el tipo char, usar wchar_t. Realizar todas las transformaciones necesarias a lo largo de los códigos para cambiar a las funciones que trabajan con caracteres wide.
+Se adjunta un código básico del uso de las librerías <locale.h> y <wchar.h> como ejemplo para iniciar.
 
-Se debe garantizar a lo largo de todo el código de que cada caracter wide tenga tamaño (length) igual a 1 para que el algoritmo de Ukkonen funcione correctamente con caracteres especiales (letras tildadas o caracteres de otros idiomas), considerando a cada uno como 1 unidad.
+Se debe garantizar a lo largo de todo el código de que cada caracter wide tenga tamaño (length) igual a 1 para que el algoritmo de Ukkonen funcione correctamente
+con caracteres especiales (letras tildadas o caracteres de otros idiomas), considerando a cada uno como 1 unidad.
 
 Enlaces para referencias al uso de la librería <wchar.h>.
 

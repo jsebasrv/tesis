@@ -69,6 +69,9 @@ int main(int argc, char **argv) {
     case 'S':
       print_align_sequence=0;
       break;
+    case 'f':
+      printf("Estamos aqui");
+      break;
     case 'h':
     default:
       show_help();
