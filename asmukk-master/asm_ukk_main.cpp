@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <wchar.h>
-
+#include <string.h>
 #include <string>
 
 extern "C" {
@@ -19,7 +19,7 @@ void show_help(void) {
   printf("  [-T threshold]        Set threshold score.  Report -1 if threshold is exceeded\n");
   printf("  [-S]                  Do not print aligned sequence\n");
   printf("  [-h]                  Help (this screen)\n");
-  printf("  [-f]                  insert files\n");
+  printf("  [-f]                  Insert reference file and ocr file\n");
 }
 
 int read_string(FILE *fp, std::string &s) {
@@ -34,14 +34,84 @@ int read_string(FILE *fp, std::string &s) {
   return s.length();
 }
 
-void recive_files(){
-  printf("hello world\n");
+void recive_files(char argumento[]){
+  char delimitador[] = " ";
+  int i=0;
+  char *token = strtok(argumento, delimitador);
+  char *files[2];
+  if(token != NULL){
+      while(token != NULL){
+          // Sólo en la primera pasamos la cadena; en las siguientes pasamos NULL
+          printf("Token: %s\n", token);
+          files[i] = token;
+          printf("este es el numero de iterador: %d y el file %s\n",i,files[i]);
+          token = strtok(NULL, delimitador);
+          i++;
+      }
+  }
+  
+  printf("Proceso de lectura de archivos linea a linea \n");
+  FILE *archivo_original = fopen(files[0], "r"); // Modo lectura
+  char bufer_original[1000];         // Aquí vamos a ir almacenando cada línea
+  
+  FILE *archivo_ocr = fopen(files[1], "r"); // Modo lectura
+  char bufer_ocr[1000];         // Aquí vamos a ir almacenando cada línea
+  
+  if(archivo_original == NULL){
+    printf("El archivo original no puede abrirse.");
+    exit(1);
+  }
+  
+  //sacar el numero de lineas de ambos archivos
+  //un if para validar que tengan la misma cantidad de lineas
+  
+  //Leer linea a linea los archivos
+  while (fgets(bufer_original, 1000, archivo_original))
+  {
+      // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
+      strtok(bufer_original, "\n");
+      // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
+      printf("La línea es: '%s'\n", bufer_original);
+        k = read_string(bufer_original, a);
+        if (k<0) { perror("error reading first string"); exit(1); }
+      
+        //a_s = (wchar_t *)(a.c_str());
+        //b_s = (wchar_t *)(b.c_str());
+  }
+  
+  if(archivo_ocr == NULL){
+    printf("El archivo  ocr no puede abrirse.");
+    exit(1);
+  }
+  
+  while (fgets(bufer_ocr, 1000, archivo_ocr))
+  {
+      // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
+      strtok(bufer_ocr, "\n");
+      // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
+      printf("La línea es: '%s'\n", bufer_ocr);
+      
+      /*k = read_string(bufer_ocr, b);
+      if (k<0) { perror("error reading second string"); exit(1); }
+      //b_s = (wchar_t *)(b.c_str());*/
+  }
+  
+  fclose(archivo_original);
+  fclose(archivo_ocr);
+  //sino mando un error
+  //return 0;
 }
+
 
 int main(int argc, char **argv) {
   int k;
   char ch;
   char *input_fn = NULL;
+  
+  for(int i=0;i<argc;i++){
+    printf("argumento %d : %s \n",i, argv[i]);
+  }
+  
 
   std::string a, b;
   wchar_t *X, *Y;
@@ -54,8 +124,10 @@ int main(int argc, char **argv) {
   int threshold = -1;
 
   FILE *ifp = stdin;
+  char *reference_file = "";
+  char files[2];
 
-  while ((ch=getopt(argc, argv, "m:g:hSi:T:f"))!=-1) switch(ch) {
+  while ((ch=getopt(argc, argv, "m:f:g:hSi:T"))!=-1) switch(ch) {
     case 'm':
       mismatch_cost = atoi(optarg);
       break;
@@ -75,7 +147,8 @@ int main(int argc, char **argv) {
       print_align_sequence=0;
       break;
     case 'f':
-      recive_files();
+      reference_file = optarg;
+      recive_files(reference_file);
       break;
     case 'h':
     default:
@@ -113,9 +186,7 @@ int main(int argc, char **argv) {
   if (threshold>0) {
     score = sa_align_ukk2(NULL, NULL, a_s, b_s, threshold, mismatch_cost, gap_cost, gap_char);
     printf("%d\n", score);
-  }
-
-  else {
+  } else {
 
     if (print_align_sequence) {
       score = asm_ukk_align2(&X, &Y, a_s, b_s, mismatch_cost, gap_cost, gap_char);
@@ -131,8 +202,6 @@ int main(int argc, char **argv) {
       score = asm_ukk_align2(NULL, NULL, a_s, b_s, mismatch_cost, gap_cost, gap_char);
       printf("%d\n", score);
     }
-
   }
-
   return 0;
 }

@@ -24,7 +24,7 @@ my $scripToGeneratePdfFromLatex = "./generatePdfFromLatex.sh";
 
 sub init_process{
 	#write_latex($_[0],$_[1]);
-	#write_pdf($_[1],$_[2]);
+	write_pdf($_[1],$_[2]);
 	create_image($_[2],$_[3]);
 }
 ##Funciton to create LaTex files from txt files
@@ -42,11 +42,11 @@ sub write_latex{
 		my $file_name = $temp_filename =~ s/$regex/$subst/rg;
 		print $file_name."\n";
 		$file = $source_path.'/'.$file; #path absoluto del fichero o directorio
-		next unless( -f $file or -d $file ); #se rechazan pipes, links, etc ..
+		next unless( -f $file or -d $file ); #se rechazan pipes, links, etc ...
 		if( -d $file){
 			open_dir($file,my $hash);
-		}else{
-	   		print $file."\n";
+		} else{
+	   	print $file."\n";
 			open(SRC, '<', $file) or die $!;
 		
 			$temp_filename =~ s/\..*$/.tex/;
@@ -67,7 +67,9 @@ sub write_latex{
 				$line = $_;
 				$line =~ s/^\w+\t|\s*$//g;
 				next if ($line =~/^\s*$/);
-				print DES "$line\\\\\n";
+				my $newLine = latex_escape($line);
+				
+				print DES "$newLine\\\\\n";
 			}
 			#writing last lines into latex file
 			print DES $footer_latex_file;
@@ -77,6 +79,33 @@ sub write_latex{
 		}		
 	}
 	print "Already finished";
+}
+
+sub latex_escape {
+  my $paragraph = shift;
+
+  # Replace a \ with $\backslash$
+  # This is made more complicated because the dollars will be escaped
+  # by the subsequent replacement. Easiest to add \backslash
+  # now and then add the dollars
+  $paragraph =~ s/\\/\\backslash/g;
+
+  # Must be done after escape of \ since this command adds latex escapes
+  # Replace characters that can be escaped
+  $paragraph =~ s/([\$\#&%_{}])/\\$1/g;
+
+  # Replace ^ characters with \^{} so that $^F works okay
+  $paragraph =~ s/(\^)/\\$1\{\}/g;
+
+  # Replace tilde (~) with \texttt{\~{}}
+  $paragraph =~ s/~/\\texttt\{\\~\{\}\}/g;
+
+  # Now add the dollars around each \backslash
+  $paragraph =~ s/(\\backslash)/\$$1\$/g;
+  
+  $paragraph =~ s/([\[])/{[}/g;
+  $paragraph =~ s/([\]])/{]}/g;
+  return $paragraph;
 }
 
 #function to write pdf from latex files
@@ -91,23 +120,22 @@ sub write_pdf{
 	foreach my $file (@files){
 		print $file."\n";
 		$file = $source_latex_path.'/'.$file; #path absoluto del fichero o directorio
-		next unless( -f $file or -d $file ); #se rechazan pipes, links, etc ..
+		next unless( -f $file or -d $file ); #se rechazan pipes, links, etc ...
 		if( -d $file){
 			open_dir($file,my $hash);
-		}else{
-	   		print $file."\n";
+		} else{
+	   	print $file."\n";
 			
 			print ("Creating Pdf files...\n");
 			my $create_pdf_command = "pdflatex -output-directory='$dest_pdf_path' $file";
 			print `$create_pdf_command`;
 			print ("Pdf file created.\n");
 			#delete files with .out .log .aux extension
-			my $delete_other_files = "rm $dest_pdf_path/*.aux $dest_pdf_path/*.out $dest_pdf_path/*.log";
-			print `$delete_other_files`;
+			#my $delete_other_files = "rm $dest_pdf_path/*.aux $dest_pdf_path/*.out $dest_pdf_path/*.log";
+			#print `$delete_other_files`;
 		}		
 	}
 	print "PDF create files process Already finished";
-		
 }
 
 sub create_image{
@@ -128,8 +156,8 @@ sub create_image{
 		next unless( -f $file or -d $file ); #se rechazan pipes, links, etc ..
 		if( -d $file){
 			open_dir($file,my $hash);
-		}else{
-	   		print $file."\n";
+		} else{
+	   	print $file."\n";
 			
 			my $directory = $dest_images_path.$file_name.'/';
 			print "**************directory******************\n". $directory;
@@ -139,19 +167,14 @@ sub create_image{
 				
 			unless(mkdir $directory) {
 				print `$create_images_command`;
-			} else {
+			} else{
 				print `$create_images_command`;
 			}
-			
-			
 		}		
 	}
 	print "Images already created";
-	
 }
-##Calling functions to created from test and training data
+
+#Calling functions to created from test and training data
 #init_process($source_file_test_data, $destination_test_data_latex_path,$destination_test_data_pdf_path,$destination_test_data_images_path);
 init_process($source_file_trainig_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path);
-
-
-
