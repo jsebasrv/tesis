@@ -9,6 +9,9 @@ use File::Basename;
 ##Getting .txt data files 
 my $source_file_trainig_data = './jp_corpus/Training_data';
 my $source_file_test_data = './jp_corpus/Test_data';
+##Writing  .txt clean files 
+my $des_file_trainig_data = './txts/Training_data';
+my $des_file_test_data = './txts/Test_data';
 ##Path to save .tex data files
 my $destination_trainig_data_latex_path = './LaTex_created_files/Training_data';
 my $destination_test_data_latex_path = './LaTex_created_files/Test_data';
@@ -23,20 +26,23 @@ my $scripToGeneratePdfFromLatex = "./generatePdfFromLatex.sh";
 
 
 sub init_process{
-	#write_latex($_[0],$_[1]);
-	write_pdf($_[1],$_[2]);
-	create_image($_[2],$_[3]);
+	write_latex($_[0],$_[1],$_[4]);
+	#write_pdf($_[1],$_[2]);
+	#create_image($_[2],$_[3]);
 }
 ##Funciton to create LaTex files from txt files
 sub write_latex{
 	my ($source_path) = ($_[0]);
 	my ($dest_latex_path) = ($_[1]);
+	my ($dest_txt_path) = ($_[2]);
 	
 	opendir(DIR, $source_path) or die $!; #se abre el directorio
 	my @files = grep(!/^\./,readdir(DIR));
 	closedir(DIR);
 	foreach my $file (@files){
 		my $temp_filename = $file;
+		my $txt_file_clean = $dest_txt_path."/".$file;
+		print $txt_file_clean."\n";
 		my $regex = qr/\..*/mp;
 		my $subst = '';
 		my $file_name = $temp_filename =~ s/$regex/$subst/rg;
@@ -48,6 +54,9 @@ sub write_latex{
 		} else{
 	   	print $file."\n";
 			open(SRC, '<', $file) or die $!;
+			
+			
+			open(DEST, '>', $txt_file_clean) or die $!;
 		
 			$temp_filename =~ s/\..*$/.tex/;
 			my $temp_path = $dest_latex_path."/".$temp_filename;
@@ -56,25 +65,43 @@ sub write_latex{
 			open(DES, '>', $temp_path) or die $!;
 			print("Copying content from source to destination file...\n");
 			##Setting open and close commands in latex to generate latex file
-			my $header_latex_file = "\\documentclass[8pt]{extreport} \n\\usepackage{hyperref}\n\\usepackage{CJKutf8}\n\\begin{document}\n\\setlength{\\parindent}{0px}\n\\begin{CJK*}{UTF8}{min}\n";
+			my $header_latex_file = "\\documentclass[8pt]{extreport} \n\\usepackage{hyperref}\n\\usepackage{CJKutf8}\n\\begin{document}\n\\setlength{\\parindent}{0px}\n\\pagenumbering{gobble}\n\\begin{CJK*}{UTF8}{min}\n";
 			my $footer_latex_file = "\\clearpage\\end{CJK*}\n\\end{document}";
 			#Writing first lines into latex file
 			print DES $header_latex_file;
+			
 			##reading file line by line and matching with the REGEX
 			## saving data into an array
+			
 			my $line;
+			my $file_content = '';
 			while (<SRC>) {
 				$line = $_;
 				$line =~ s/^\w+\t|\s*$//g;
+				$line =~ s/ //gm;
+				
 				next if ($line =~/^\s*$/);
 				my $newLine = latex_escape($line);
 				
-				print DES "$newLine\\\\\n";
+				$file_content.="${newLine}\\\\\n";
+				#print DES "$newLine\\\\\n";
 			}
+			
+			my $regex = qr/^(.*)$((?:\r?\n.*)*?)^(\1)$(\r?)\n?/mp;
+			if ($file_content =~ /$regex/g) {
+        $file_content =~ s/$regex/$1$2/g;
+      }
+			
+			$file_content =~ s/$regex/$1\n/g;
+			my $clean_txt_file =$file_content;
+			$clean_txt_file =~ s/\\\\/''/mg;
+			print DEST "$clean_txt_file";
+			print DES "$file_content";
 			#writing last lines into latex file
 			print DES $footer_latex_file;
 			close(SRC);
 			close(DES);
+			close(DEST);
 			print("Content copied successfully from source to destination file\n");
 		}		
 	}
@@ -105,6 +132,18 @@ sub latex_escape {
   
   $paragraph =~ s/([\[])/{[}/g;
   $paragraph =~ s/([\]])/{]}/g;
+	$paragraph =~ tr/①②③④⑤⑥⑦⑧⑨/123456789/;
+	$paragraph =~ s/⑩/10/;
+	$paragraph =~ s/⑪/11/;
+	$paragraph =~ s/⑫/12/;
+	$paragraph =~ s/⑬/13/;
+	$paragraph =~ s/⑭/14/;
+	$paragraph =~ s/⑮/15/;
+	$paragraph =~ s/⑯/16/;
+	$paragraph =~ s/⑰/17/;
+	$paragraph =~ s/⑱/18/;
+	$paragraph =~ s/⑲/19/;
+
   return $paragraph;
 }
 
@@ -131,8 +170,8 @@ sub write_pdf{
 			print `$create_pdf_command`;
 			print ("Pdf file created.\n");
 			#delete files with .out .log .aux extension
-			#my $delete_other_files = "rm $dest_pdf_path/*.aux $dest_pdf_path/*.out $dest_pdf_path/*.log";
-			#print `$delete_other_files`;
+			my $delete_other_files = "rm $dest_pdf_path/*.aux $dest_pdf_path/*.out $dest_pdf_path/*.log";
+			print `$delete_other_files`;
 		}		
 	}
 	print "PDF create files process Already finished";
@@ -176,5 +215,5 @@ sub create_image{
 }
 
 #Calling functions to created from test and training data
-#init_process($source_file_test_data, $destination_test_data_latex_path,$destination_test_data_pdf_path,$destination_test_data_images_path);
-init_process($source_file_trainig_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path);
+init_process($source_file_test_data, $destination_test_data_latex_path,$destination_test_data_pdf_path,$destination_test_data_images_path,$des_file_test_data);
+init_process($source_file_trainig_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path,$des_file_trainig_data);

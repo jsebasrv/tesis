@@ -35,6 +35,8 @@ int read_string(FILE *fp, std::string &s) {
 }
 
 void recive_files(char argumento[]){
+  int k;
+  std::string a, b;
   char delimitador[] = " ";
   int i=0;
   char *token = strtok(argumento, delimitador);
@@ -56,6 +58,9 @@ void recive_files(char argumento[]){
   
   FILE *archivo_ocr = fopen(files[1], "r"); // Modo lectura
   char bufer_ocr[1000];         // Aquí vamos a ir almacenando cada línea
+  int count_lines_reference_file = 0;
+  int count_lines_ocr_file = 0;
+  
   
   if(archivo_original == NULL){
     printf("El archivo original no puede abrirse.");
@@ -68,15 +73,14 @@ void recive_files(char argumento[]){
   //Leer linea a linea los archivos
   while (fgets(bufer_original, 1000, archivo_original))
   {
-      // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
-      strtok(bufer_original, "\n");
-      // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
-      printf("La línea es: '%s'\n", bufer_original);
-        k = read_string(bufer_original, a);
-        if (k<0) { perror("error reading first string"); exit(1); }
-      
-        //a_s = (wchar_t *)(a.c_str());
-        //b_s = (wchar_t *)(b.c_str());
+    count_lines_reference_file += 1;
+    // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
+    strtok(bufer_original, "\n");
+    // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
+    printf("'%d' '%s'\n",count_lines_reference_file bufer_original);
+    k = sizeof(bufer_original);
+    printf("el valor de la cadena es: %d\n",k);
+    if (k<0) { perror("error reading first string"); exit(1); }
   }
   
   if(archivo_ocr == NULL){
@@ -86,14 +90,15 @@ void recive_files(char argumento[]){
   
   while (fgets(bufer_ocr, 1000, archivo_ocr))
   {
-      // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
-      strtok(bufer_ocr, "\n");
-      // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
-      printf("La línea es: '%s'\n", bufer_ocr);
-      
-      /*k = read_string(bufer_ocr, b);
-      if (k<0) { perror("error reading second string"); exit(1); }
-      //b_s = (wchar_t *)(b.c_str());*/
+    count_lines_ocr_file += 1;
+    // Aquí, justo ahora, tenemos ya la línea. Le vamos a remover el salto
+    strtok(bufer_ocr, "\n");
+    // La imprimimos, pero realmente podríamos hacer cualquier otra cosa
+    printf("La línea es: '%s'\n", bufer_ocr);
+    
+    /*k = read_string(bufer_ocr, b);
+    if (k<0) { perror("error reading second string"); exit(1); }
+    //b_s = (wchar_t *)(b.c_str());*/
   }
   
   fclose(archivo_original);
