@@ -27,8 +27,8 @@ my $scripToGeneratePdfFromLatex = "./generatePdfFromLatex.sh";
 
 sub init_process{
 	write_latex($_[0],$_[1],$_[4]);
-	#write_pdf($_[1],$_[2]);
-	#create_image($_[2],$_[3]);
+	write_pdf($_[1],$_[2]);
+	create_image($_[2],$_[3]);
 }
 ##Funciton to create LaTex files from txt files
 sub write_latex{
@@ -216,4 +216,4 @@ sub create_image{
 
 #Calling functions to created from test and training data
 init_process($source_file_test_data, $destination_test_data_latex_path,$destination_test_data_pdf_path,$destination_test_data_images_path,$des_file_test_data);
-init_process($source_file_trainig_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path,$des_file_trainig_data);
+#init_process($source_file_trainig_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path,$des_file_trainig_data);
