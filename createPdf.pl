@@ -26,8 +26,8 @@ my $scripToGeneratePdfFromLatex = "./generatePdfFromLatex.sh";
 
 
 sub init_process{
-	write_latex($_[0],$_[1],$_[4]);
-	write_pdf($_[1],$_[2]);
+	#write_latex($_[0],$_[1],$_[4]);
+	#write_pdf($_[1],$_[2]);
 	create_image($_[2],$_[3]);
 }
 ##Funciton to create LaTex files from txt files
@@ -93,10 +93,11 @@ sub write_latex{
       }
 			
 			$file_content =~ s/$regex/$1\n/g;
-			my $clean_txt_file =$file_content;
-			$clean_txt_file =~ s/\\\\/''/mg;
-			print DEST "$clean_txt_file";
 			print DES "$file_content";
+			my $clean_txt_file = $file_content;
+			$clean_txt_file =~ s/\\\\\n/\n/mg;
+			print DEST "$clean_txt_file";
+			
 			#writing last lines into latex file
 			print DES $footer_latex_file;
 			close(SRC);
