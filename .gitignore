@@ -1,0 +1,10 @@
+*.txt
+*.tex
+*.pdf
+*.jpg
+images/
+pdf_created_files/
+LaTex_created_files/
+referenceFiles/
+ocrFiles/
+
