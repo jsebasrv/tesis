@@ -23,9 +23,9 @@ my $scripToGeneratePdfFromLatex = "./generatePdfFromLatex.sh";
 
 
 sub init_process{
-	#write_latex($_[0],$_[1]);
-	#write_pdf($_[1],$_[2]);
-	create_image($_[2],$_[3]);
+	write_latex($_[0],$_[1]);
+	write_pdf($_[1],$_[2]);
+	#create_image($_[2],$_[3]);
 }
 
 ##Funciton to create LaTex files from txt files
@@ -82,7 +82,7 @@ sub write_latex{
 			open(DES, '>', $temp_path) or die $!;
 			print("Copying content from source to destination file...\n");
 			##Setting open and close commands in latex to generate latex file #\n\\usepackage[sfdefault]{noto}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}
-			my $header_latex_file = "\\documentclass[10pt]{extreport}\n\\usepackage{pdflscape}\n\\renewcommand{\\baselinestretch}{2}\n\\usepackage{geometry}\n\\geometry{a4paper,left=08mm,top=10mm,right=08mm,bottom=10mm}\n\\usepackage{kotex}\n\\begin{document}\n\\setlength{\\parindent}{0cm}\n\\pagenumbering{gobble}\n";#\n\\begin{landscape}
+			my $header_latex_file = "\\documentclass[10pt]{extreport}\n\\renewcommand{\\baselinestretch}{2}\n\\usepackage{geometry}\n\\usepackage[T1]{fontenc}\n\\usepackage[utf8x]{inputenc}\n\\geometry{a4paper,left=08mm,top=10mm,right=08mm,bottom=10mm}\n\\usepackage{xeCJK}\n\\setmainfont{Noto Serif}\n\\setCJKmainfont{Noto Serif CJK KR}\n\\setCJKsansfont{Noto Sans CJK KR}\n\\setCJKmonofont{Noto Sans Mono CJK KR}\n\\begin{document}\n\\setlength{\\parindent}{0cm}\n\\pagenumbering{gobble}\n";#\n\\begin{landscape}
 			my $footer_latex_file = "\n\\end{document}\n\\clearpage\\end{CJK*}";#\\end{landscape}
 			#Writing first lines into latex file
 			print DES $header_latex_file;
@@ -142,11 +142,11 @@ sub write_pdf{
 			
 			print ("Creating Pdf files...\n");
 			print $dest_pdf_path."\n";
-			my $create_pdf_command = "pdflatex -output-directory='$dest_pdf_path' $file"; #
+			my $create_pdf_command = "xelatex -output-directory='$dest_pdf_path' $file"; #
 			print `$create_pdf_command`;
 			print ("Pdf file created.\n");
 			#delete files with .out .log .aux extension
-			my $delete_other_files = "rm $dest_pdf_path/*.aux $dest_pdf_path/*.out $dest_pdf_path/*.log";
+			my $delete_other_files = "rm $dest_pdf_path/*.aux $dest_pdf_path/*.log";#$dest_pdf_path/*.out
 			print `$delete_other_files`;
 		}
 	}
