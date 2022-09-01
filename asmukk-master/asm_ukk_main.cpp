@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <wchar.h>
-#include <string.h>
 #include <locale.h>
 #include <string>
+#include <codecvt>
 
 
 extern "C" {
@@ -24,22 +24,48 @@ void show_help(void) {
   printf("  [-f]                  Insert reference file and ocr file\n");
 }
 
-std::size_t read_string(FILE *fp, wchar_t* &s) {
-  wint_t ch;
 
-  while ((ch=fgetwc(fp))!=WEOF) {
-    wprintf(L"wc = %ls\n", ch);
-    if (ch=='}') { break; }
-    else if(ch==']'){ break; }
-    s += ch;
+std::wstring to_wide (const std::string &multi) {
+  return std::wstring_convert<codecvt_<wchar_t, char, mbstate_t>> {}
+      .from_bytes (multi);
+}
+  
+std::size_t read_string(FILE *fp, std::string &s) {
+  wint_t ch;
+  
+  std::wstring cha = to_wide(s);
+  
+  const wchar_t* result = cha.c_str();
+
+  result = (wchar_t *) malloc(sizeof(wchar_t) * 2 + 1);
+  int i=0;
+  
+  if (NULL == (fp = fopen("pruebaUkkn.txt", "r"))) {         
+      printf("Unable to open: \"pruebaUkkn.txt\"\n");             
+      exit(1);                                                
   }
+  
+  errno = 0;                                                 
+  while (WEOF != (ch = fgetwc(fp))){
+    if (EILSEQ == errno) {                                     
+       printf("An invalid wide character was encountered.\n"); 
+       exit(1);                                                
+    }
+    result+= ch;
+  }
+  wprintf(L"%ls len=%d\n", result, sizeof(s));
+
+  fclose(fp);                                            
+  return ch;
+  
+  /*wprintf(L"%ls and len is: %d\n", s, sizeof(s)); 
+  
   if ((ch==WEOF) && (errno!=0)) { return -1; }
-  wprintf(L"The file contains %d characters.\n",wcslen(s));
-  return wcslen(s);
+  return sizeof(s);*/
 }
 
 int main(int argc, char **argv) {
-  setlocale(LC_ALL, "en_US.UTF-8");
+  setlocale(LC_ALL, "");
   int k;
   char ch;
   char *input_fn = NULL;
@@ -48,7 +74,7 @@ int main(int argc, char **argv) {
     printf("argumento %d : %s \n",i, argv[i]);
   }
   
-  wchar_t* a,*b;
+  std::string a, b;
   wchar_t *X, *Y;
   wchar_t *a_s, *b_s;
   char gap_char = '-';
@@ -61,13 +87,14 @@ int main(int argc, char **argv) {
   FILE *ifp = stdin;
   char *reference_file = "";
   char files[2];
+  
 
   while ((ch=getopt(argc, argv, "m:g:hSi:T"))!=-1) switch(ch) {
     case 'm':
       mismatch_cost = atoi(optarg);
       break;
     case 'i':
-      printf("%s",optarg);
+      printf("Estoy entrando aqui\n");
       input_fn = strdup(optarg);
       break;
     case 'g':
@@ -88,13 +115,13 @@ int main(int argc, char **argv) {
       exit(0);
   }
 
-  printf("first if");
+  printf("first if\n");
   if ((!input_fn) && (isatty(fileno(stdin))>0)) {
     show_help();
     exit(0);
   }
 
-  printf("second if");
+  printf("second if\n");
   if (input_fn) {
     if ((ifp = fopen(input_fn, "r"))==NULL) {
       perror(input_fn);
@@ -103,14 +130,14 @@ int main(int argc, char **argv) {
     }
   }
 
-  printf("third if");
+  printf("third if\n");
   if ((mismatch_cost<0) || (gap_cost<0)) {
     fprintf(stderr, "Mismatch cost (-m) and gap cost (-g) must both be non-zero\n");
     show_help();
     exit(1);
   }
   
-  printf("about to read file");
+  printf("about to read file\n");
   k = read_string(ifp, a);
   if (k<0) { perror("error reading first string"); exit(1); }
   k = read_string(ifp, b);

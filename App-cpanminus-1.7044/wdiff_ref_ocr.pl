@@ -26,10 +26,14 @@ sub main{
     die "File $ocr_file_name does not exit.\n";
   }
   
-  my $diff_text = `wdiff $ref_file_name $ocr_file_name --no-common`;
+  #my $diff_text = `wdiff $ref_file_name $ocr_file_name --no-common`;
+	my $diff_text = `wdiff $ref_file_name $ocr_file_name`;
   $diff_text = Encode::decode("utf-8", $diff_text, Encode::FB_CROAK);
   $diff_text =~ s/[ \t]//g;#Normalization
   my ($idx, $ref, $ocr, $count_ref, $count_ocr) = 0;
+	
+	open(SRC, '<', $ref_file_name) or die $!;
+	open(DEST, '>', "./rest_wdiff_files/Test_data/archivo_053.txt") or die $!;
   while ($diff_text =~ m/\[\-((?:(?!\{\+|=====).)*)\-\]\s*\{\+((?:(?!\[\-).)*)\+\}/gs){
     ($ref, $ocr) = ($1, $2);
     #if ($idx == 46){
@@ -54,18 +58,72 @@ sub main{
     
     $count_ref = () = ($ref =~ m/(\n)/gs);
     $count_ocr = () = ($ocr =~ m/(\n)/gs);
+		print ">$count_ref\n>$count_ocr\n\n";
+		
     if ($count_ref != $count_ocr){#
       print "$count_ref != $count_ocr\n";
       $idx++;
       print $idx, "\t", distance($ref, $ocr), "\n";
       print ">$ref\n>$ocr\n\n";
       next;#Gives up of the current block alignment.
-    }    
+    }
+		print DEST "$ref\n$ocr\n";
     #print $idx, "\t", distance($ref, $ocr), "\n";
     #print ">$ref\n>$ocr\n\n";
     $idx++;
-  } 
+  }
+	
+	
+	close(SRC);
+	close(DEST);
   print "";
+}
+
+sub write_output_data{
+	
+	my ($source_path) = ($_[0]);
+	my ($dest_txt_path) = ($_[1]);
+	my ($data_ref) = ($_[2]);
+	my ($data_ocr) = ($_[3]);
+	
+	opendir(DIR, $source_path) or die $!; #se abre el directorio
+	my @files = grep(!/^\./,readdir(DIR));
+	closedir(DIR);
+	foreach my $file (@files){
+		##getting filename
+		my $temp_filename = $file;
+		##split file from extention
+		my $regex = qr/\..*/mp;
+		my $subst = '';
+		my $file_name = $temp_filename =~ s/$regex//rg;
+		##setting name for reference files
+		my $txt_file_clean = $dest_txt_path."/".$file_name.".txt";
+		print $txt_file_clean."\n";
+		print $file_name."\n";
+		$file = $source_path.'/'.$file; #path absoluto del fichero o directorio
+		next unless( -f $file or -d $file ); #se rechazan pipes, links, etc ...
+		if( -d $file){
+			open_dir($file,my $hash);
+		} else{
+			##printing file path from source (j_courpus) 
+	   	print $file."\n";
+			##Open files from source to read and reference to write
+			open(SRC, '<', $file) or die $!;
+			open(DEST, '>', $txt_file_clean) or die $!;
+			## Cleaning data
+			## reading file line by line and matching with the REGEX
+			## saving data into an array
+			my $line;
+			my $file_content = '';
+			while (<SRC>) {
+				print DEST "$data_ref"."\n".$data_ocr."\n";
+				#print DEST "$data_ocr";
+			}
+			close(SRC);
+			close(DEST);
+			print("Content copied successfully from source to destination file\n");
+		}		
+	}
 }
 
 

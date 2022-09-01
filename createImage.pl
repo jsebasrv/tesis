@@ -16,16 +16,14 @@ my $destination_test_data_latex_path = './LaTex_created_files/Test_data';
 my $destination_trainig_data_pdf_path = './pdf_created_files/Training_data';
 my $destination_test_data_pdf_path = './pdf_created_files/Test_data';
 ##Path to save .pdf training data files
-my $destination_trainig_data_images_path = './images/Training_data/';
-my $destination_test_data_images_path = './images/Test_data/';
-
-my $scripToGeneratePdfFromLatex = "./generatePdfFromLatex.sh";
+my $destination_trainig_data_images_path = '/home/srueda/tesis/images/Training_data/';
+my $destination_test_data_images_path = '/home/srueda/tesis/images/Test_data/';
 
 
 sub init_process{
-	write_latex($_[0],$_[1]);
+	#write_latex($_[0],$_[1]);
 	write_pdf($_[1],$_[2]);
-	#create_image($_[2],$_[3]);
+	create_image($_[2],$_[3]);
 }
 
 ##Funciton to create LaTex files from txt files
@@ -114,7 +112,7 @@ sub latex_escape {
   # Replace ^ characters with \^{} so that $^F works okay
   $paragraph =~ s/(\^)/\\$1\{\}/g;
   # Replace tilde (~) with \texttt{\~{}}
-  $paragraph =~ s/~/\\texttt\{\\~\{\}\}/g;
+  #$paragraph =~ s/~/\\texttt\{\\~\{\}\}/g;
   # Now add the dollars around each \backslash
   $paragraph =~ s/(\\backslash)/\$$1\$/g;
 
@@ -191,5 +189,5 @@ sub create_image{
 }
 
 #Calling functions to created from test and training data
-init_process($source_file_test_data, $destination_test_data_latex_path,$destination_test_data_pdf_path,$destination_test_data_images_path);
-#init_process($source_file_trainig_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path,$des_file_trainig_data);
+#init_process($source_file_test_data, $destination_test_data_latex_path,$destination_test_data_pdf_path,$destination_test_data_images_path);
+init_process($source_file_training_data,$destination_trainig_data_latex_path,$destination_trainig_data_pdf_path,$destination_trainig_data_images_path);
